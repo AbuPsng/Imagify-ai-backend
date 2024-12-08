@@ -16,13 +16,6 @@ connectToDb();
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/v1/hi", (req, res) => {
-  res.send("ja is working very fine");
-});
-
-app.use("/", (req, res) => {
-  res.send("api is wroking");
-});
 app.use("/api/v1/user", userRouter);
 
 app.use("/api/v1/image", imageRouter);
