@@ -5,7 +5,7 @@ export type ControllerType = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<Response<any, Record<string, any>> | undefined>;
+) => Promise<void>;
 
 export interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -21,4 +21,4 @@ export type MessageResponseTypes = (
   success: boolean,
   message: string | MessageObject | object,
   creditBalance?: number
-) => Promise<Response<any, Record<string, any>> | undefined> | void;
+) => Response;

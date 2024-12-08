@@ -4,23 +4,28 @@ import FormData from "form-data";
 import { userModel } from "../models/userModel.js";
 import { MessageResponse } from "../utils/index.js";
 
-export const generateImage = async (req: Request, res: Response) => {
+export const generateImage = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { userId, prompt } = req.body;
 
     const user = await userModel.findById(userId);
 
     if (!user || !prompt) {
-      return MessageResponse(res, 400, false, {
+      MessageResponse(res, 400, false, {
         message: "Missing details",
       });
+      return;
     }
 
     if (Number(user.creditBalance) <= 0) {
-      return MessageResponse(res, 400, false, {
+      MessageResponse(res, 400, false, {
         message: "You are out of credit.",
         creditBalance: user.creditBalance,
       });
+      return;
     }
 
     const formData = new FormData();

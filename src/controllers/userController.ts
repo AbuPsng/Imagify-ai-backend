@@ -7,14 +7,14 @@ import { MessageResponse, userAlreadyExist } from "../utils/index.js";
 dotenv.config({ path: "../.env" });
 
 export const registerUser = async (
-  req: Request<any>,
+  req: Request,
   res: Response
-): Promise<void | Response<any, Record<string, any>>> => {
+): Promise<void> => {
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.json({
+      res.json({
         success: false,
         message: "All credential are required",
       });
@@ -23,7 +23,8 @@ export const registerUser = async (
     const userExist = await userAlreadyExist(email);
 
     if (userExist) {
-      return MessageResponse(res, 400, false, "This account already exist");
+      MessageResponse(res, 400, false, "This account already exist");
+      return;
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -36,7 +37,7 @@ export const registerUser = async (
     });
 
     if (!newUser) {
-      return MessageResponse(res, 400, false, "Failed to create a account");
+      MessageResponse(res, 400, false, "Failed to create a account");
     }
 
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET!);
@@ -54,26 +55,27 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return MessageResponse(res, 400, false, {
-        message: "All credential are required",
-      });
+      MessageResponse(res, 400, false, "All credential are required");
+      return;
     }
 
     const user = await userAlreadyExist(email);
 
     if (!user) {
-      return MessageResponse(res, 400, false, "Incorrect credentials");
+      MessageResponse(res, 400, false, "Incorrect credentials");
+      return;
     }
 
     const correctPassword = await bcrypt.compare(password, user.password);
 
     if (!correctPassword) {
-      return MessageResponse(res, 400, false, "Incorrect credentials");
+      MessageResponse(res, 400, false, "Incorrect credentials");
+      return;
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
@@ -81,20 +83,22 @@ export const loginUser = async (req: Request, res: Response) => {
     MessageResponse(res, 200, true, { token, user: { name: user.name } });
   } catch (error) {
     console.log(error);
-    MessageResponse(res, 400, false, {
-      message: "Failed to login user",
-    });
+    MessageResponse(res, 400, false, "Failed to login user");
   }
 };
 
-export const userCredit = async (req: Request, res: Response) => {
+export const userCredit = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { userId } = req.body;
 
     const user = await userModel.findById(userId);
 
     if (!user) {
-      return MessageResponse(res, 400, false, "Please log in first.");
+      MessageResponse(res, 400, false, "Please log in first.");
+      return;
     }
 
     res.status(200).json({

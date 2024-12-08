@@ -8,14 +8,15 @@ export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         if (!name || !email || !password) {
-            return res.json({
+            res.json({
                 success: false,
                 message: "All credential are required",
             });
         }
         const userExist = await userAlreadyExist(email);
         if (userExist) {
-            return MessageResponse(res, 400, false, "This account already exist");
+            MessageResponse(res, 400, false, "This account already exist");
+            return;
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -25,7 +26,7 @@ export const registerUser = async (req, res) => {
             password: hashedPassword,
         });
         if (!newUser) {
-            return MessageResponse(res, 400, false, "Failed to create a account");
+            MessageResponse(res, 400, false, "Failed to create a account");
         }
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
         MessageResponse(res, 201, true, {
@@ -45,26 +46,25 @@ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            return MessageResponse(res, 400, false, {
-                message: "All credential are required",
-            });
+            MessageResponse(res, 400, false, "All credential are required");
+            return;
         }
         const user = await userAlreadyExist(email);
         if (!user) {
-            return MessageResponse(res, 400, false, "Incorrect credentials");
+            MessageResponse(res, 400, false, "Incorrect credentials");
+            return;
         }
         const correctPassword = await bcrypt.compare(password, user.password);
         if (!correctPassword) {
-            return MessageResponse(res, 400, false, "Incorrect credentials");
+            MessageResponse(res, 400, false, "Incorrect credentials");
+            return;
         }
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
         MessageResponse(res, 200, true, { token, user: { name: user.name } });
     }
     catch (error) {
         console.log(error);
-        MessageResponse(res, 400, false, {
-            message: "Failed to login user",
-        });
+        MessageResponse(res, 400, false, "Failed to login user");
     }
 };
 export const userCredit = async (req, res) => {
@@ -72,7 +72,8 @@ export const userCredit = async (req, res) => {
         const { userId } = req.body;
         const user = await userModel.findById(userId);
         if (!user) {
-            return MessageResponse(res, 400, false, "Please log in first.");
+            MessageResponse(res, 400, false, "Please log in first.");
+            return;
         }
         res.status(200).json({
             success: true,

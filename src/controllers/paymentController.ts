@@ -5,16 +5,20 @@ import { userModel } from "../models/userModel.js";
 import { transactionModel } from "../models/transactionMode.js";
 import "dotenv/config";
 
-export const stripePaymentInstance = async (req: Request, res: Response) => {
+export const stripePaymentInstance = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     console.log(req.body, "body");
     const { planId, userId } = req.body;
 
     if (!planId || !userId) {
-      return MessageResponse(res, 400, false, {
+      MessageResponse(res, 400, false, {
         success: false,
         message: "Please selece a plan",
       });
+      return;
     }
 
     let transactionData = { plan: "", userId, credits: 0, amount: 0, date: 0 };
@@ -36,7 +40,7 @@ export const stripePaymentInstance = async (req: Request, res: Response) => {
         transactionData.amount = 250;
         break;
       default:
-        return MessageResponse(res, 400, false, "transactionData not found");
+        MessageResponse(res, 400, false, "transactionData not found");
     }
 
     let date = Date.now();
@@ -55,7 +59,10 @@ export const stripePaymentInstance = async (req: Request, res: Response) => {
 
     const user = await userModel.findById(userId);
 
-    if (!user) return MessageResponse(res, 400, false, "Please login first");
+    if (!user) {
+      MessageResponse(res, 400, false, "Please login first");
+      return;
+    }
 
     await userModel.findByIdAndUpdate(userId, {
       creditBalance: transactionData.credits + user?.creditBalance,

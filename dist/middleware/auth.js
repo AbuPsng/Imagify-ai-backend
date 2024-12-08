@@ -2,9 +2,8 @@ import jwt from "jsonwebtoken";
 export const userAuth = async (req, res, next) => {
     const token = req.headers.token;
     if (!token || Array.isArray(token)) {
-        return res
-            .status(400)
-            .json({ success: false, message: "Please log in first" });
+        res.status(400).json({ success: false, message: "Please log in first" });
+        return;
     }
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);

@@ -7,13 +7,27 @@ export const userAlreadyExist = async (email: string) => {
   return userExist ? userExist : false;
 };
 
-export const MessageResponse: MessageResponseTypes = (
-  res,
-  statusCode,
-  success,
-  message
-) => {
-  res.status(statusCode).json({
+// export const MessageResponse: MessageResponseTypes = (
+//   res,
+//   statusCode,
+//   success,
+//   message,
+//   creditBalance
+// ) => {
+//   return res.status(statusCode).json({
+//     success,
+//     message,
+//     ...(creditBalance !== undefined && { creditBalance }),
+//   });
+// };
+
+export const MessageResponse = (
+  res: Response,
+  statusCode: number,
+  success: boolean,
+  message: string | object
+): Response => {
+  return res.status(statusCode).json({
     success,
     message,
   });
