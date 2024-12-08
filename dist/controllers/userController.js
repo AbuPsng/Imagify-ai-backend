@@ -50,6 +50,9 @@ export const loginUser = async (req, res) => {
             return;
         }
         const user = await userAlreadyExist(email);
+        console.log(email, "email");
+        console.log(password, "password");
+        console.log(user, "user");
         if (!user) {
             MessageResponse(res, 400, false, "Incorrect credentials");
             return;
